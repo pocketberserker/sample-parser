@@ -1,0 +1,27 @@
+{
+  "name": "sample-parser",
+  "version": "0.0.1",
+  "description": "sample parser",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp build",
+    "_build": "./node_modules/.bin/tsc",
+    "test": "gulp test"
+  },
+  "author": "pocketberserker",
+  "license": "MIT License",
+  "dependencies": {
+    "parsimmons": "^0.7.0"
+  },
+  "devDependencies": {
+    "del": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-espower": "^0.10.1",
+    "gulp-mocha": "^2.1.1",
+    "gulp-shell": "^0.4.2",
+    "mocha": "^2.2.5",
+    "power-assert": "^0.11.0",
+    "testem": "^0.8.3",
+    "typescript": "^1.5.0-beta"
+  }
+}

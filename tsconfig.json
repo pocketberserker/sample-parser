@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "noLib": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "out": "./build/index.js"
+  },
+  "filesGlob": [
+    ".src/**/*.ts",
+    "!./node_modules/**/*.ts"
+  ],
+  "files": [
+    "./typings/tsd.d.ts",
+    "./src/SampleParser.ts"
+  ]
+}
