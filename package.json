@@ -14,14 +14,17 @@
     "parsimmon": "^0.7.0"
   },
   "devDependencies": {
+    "browserify": "^10.2.4",
     "del": "^1.2.0",
+    "espowerify": "^0.10.1",
+    "glob": "^5.0.10",
     "gulp": "^3.9.0",
-    "gulp-espower": "^0.10.1",
     "gulp-mocha": "^2.1.1",
     "gulp-shell": "^0.4.2",
     "mocha": "^2.2.5",
     "power-assert": "^0.11.0",
     "testem": "^0.8.3",
-    "typescript": "^1.5.0-beta"
+    "typescript": "^1.5.0-beta",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
