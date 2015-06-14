@@ -32,3 +32,4 @@ node_modules
 build/
 powered-test/
 npm-debug.log
+src/*.js
