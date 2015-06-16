@@ -11,7 +11,7 @@
   "author": "pocketberserker",
   "license": "MIT License",
   "dependencies": {
-    "parsimmons": "^0.7.0"
+    "parsimmon": "^0.7.0"
   },
   "devDependencies": {
     "del": "^1.2.0",
