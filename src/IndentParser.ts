@@ -7,7 +7,7 @@ class IndentParser {
     return parsimmon.optWhitespace.map((w: string) => w.length);
   }
 
-  sameLevel(context: IndentContext): parsimmon.Parser<void> {
+  static sameLevel(context: IndentContext): parsimmon.Parser<void> {
     return context.currentLevel === context.newLevel ? parsimmon.succeed(null) : parsimmon.fail("indent don't same level");
   }
 
@@ -15,14 +15,14 @@ class IndentParser {
     return parsimmon.string("\r\n").or(parsimmon.string("\n"));
   }
 
-  endOfLine(context: IndentContext) {
+  static endOfLine(context: IndentContext) {
     return parsimmon.eof.map((_: void) => context.updateNewLevel(0))
-      .or(IndentParser.newline.then((_: string) =>
+      .or(IndentParser.newline.then(
         IndentParser.indent.map((i: number) => context.updateNewLevel(i))));
   }
 
-  openParen(level: number, context: IndentContext): parsimmon.Parser<IndentContext> {
-    var body =
+  static openParen(level: number, context: IndentContext): parsimmon.Parser<IndentContext> {
+    let body =
       (success: (index: number, value: IndentContext) => parsimmon.Result<IndentContext>,
         failure: (index: number, expexted: string) => parsimmon.Result<IndentContext>) => {
         return (stream: string, i: number) => {
@@ -33,8 +33,8 @@ class IndentParser {
     return parsimmon.custom(body);
   }
 
-  closeParen(level: number, context: IndentContext): parsimmon.Parser<IndentContext> {
-    var body =
+  static closeParen(level: number, context: IndentContext): parsimmon.Parser<IndentContext> {
+    let body =
       (success: (index: number, value: IndentContext) => parsimmon.Result<IndentContext>,
         failure: (index: number, expexted: string) => parsimmon.Result<IndentContext>) => {
         return (stream: string, i: number) => {

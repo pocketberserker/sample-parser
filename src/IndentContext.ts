@@ -1,4 +1,5 @@
 "use strict";
+
 class IndentContext {
   private _levels: number[];
   private _current: number;
@@ -17,7 +18,7 @@ class IndentContext {
   }
 
   constructor(levels: number[], current: number, newLevel: number) {
-    this.levels = levels;
+    this._levels = levels;
     this._current = current;
     this._new = newLevel;
   }
@@ -38,6 +39,10 @@ class IndentContext {
 
   updateNewLevel(newLevel: number): IndentContext {
     return new IndentContext(this._levels, this._current, newLevel);
+  }
+
+  static get initialize() {
+    return new IndentContext([], 0, 0);
   }
 }
 export = IndentContext;
