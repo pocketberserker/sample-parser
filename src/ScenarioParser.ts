@@ -28,8 +28,7 @@ module ScenarioParser {
   function sum(xs: number[]) {
     if (xs.length <= 0) {
       return 0;
-    }
-    else if (xs.length == 1) {
+    } else if (xs.length === 1) {
       return xs[0];
     }
     return xs.reduce((a: number, b: number) => a + b);
