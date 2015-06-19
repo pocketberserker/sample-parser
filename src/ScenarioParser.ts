@@ -7,9 +7,9 @@ import Result = require("./Result");
 import Scenario = require("./Scenario");
 import Monologue = require("./Monologue");
 
-class ScenarioParser {
+module ScenarioParser {
 
-  static words(context: IndentContext): parsimmon.Parser<string> {
+  export function words(context: IndentContext): parsimmon.Parser<string> {
     return Helper.word.chain((first: string) =>
       IndentParser.newline.then(IndentParser.indent
         .chain((i: number) => {
@@ -19,13 +19,13 @@ class ScenarioParser {
             parsimmon.fail("indent don't equal");
           }
         })
-        .then(parsimmon.lazy(() => ScenarioParser.words(context)))
+        .then(parsimmon.lazy(() => words(context)))
         .map((ls: string) => first + "\n" + ls))
         .or(parsimmon.succeed(first))
     );
   }
 
-  static pre(context: IndentContext): parsimmon.Parser<string> {
+  export function pre(context: IndentContext): parsimmon.Parser<string> {
     var symbol = parsimmon.string("```");
     return symbol.then(IndentParser.newline)
       .then(parsimmon.regex(new RegExp("(^(```))*")))
@@ -42,11 +42,11 @@ class ScenarioParser {
           .then(symbol).result(text));
   }
 
-  static text(context: IndentContext): parsimmon.Parser<string> {
-    return ScenarioParser.words(context).or(ScenarioParser.pre(context));
+  export function text(context: IndentContext): parsimmon.Parser<string> {
+    return words(context).or(pre(context));
   }
 
-  static monologue(context: IndentContext): parsimmon.Parser<Result<Scenario>> {
+  export function monologue(context: IndentContext): parsimmon.Parser<Result<Scenario>> {
     return (parsimmon.optWhitespace.then(Helper.comment).then(IndentParser.newline)).many()
       .then(IndentParser.sameLevel(context))
       .then(parsimmon.string("monologue"))
@@ -54,23 +54,23 @@ class ScenarioParser {
       .chain((eolCtx: IndentContext) => {
         var currentLevel = eolCtx.currentLevel;
         return IndentParser.openParen(currentLevel, eolCtx).chain((openCtx: IndentContext) =>
-          ScenarioParser.text(openCtx).chain((words: string) =>
+          text(openCtx).chain((ws: string) =>
             IndentParser.endOfLine(openCtx).chain((closeEolCtx: IndentContext) =>
               IndentParser.closeParen(currentLevel, closeEolCtx)
-                .map((closeCtx: IndentContext) => new Result(new Monologue(words), closeCtx))
+                .map((closeCtx: IndentContext) => new Result(new Monologue(ws), closeCtx))
             )));
       });
   }
 
-  static line(context: IndentContext): parsimmon.Parser<Result<Scenario>> {
+  export function line(context: IndentContext): parsimmon.Parser<Result<Scenario>> {
     // TODO: implement
     return parsimmon.fail<Result<Scenario>>("not implemented");
   }
 
-  static scenarios(context: IndentContext): parsimmon.Parser<Result<Scenario[]>> {
+  export function scenarios(context: IndentContext): parsimmon.Parser<Result<Scenario[]>> {
     let empty: Result<Scenario[]> = new Result([], context);
-    return ScenarioParser.monologue(context)
-      .or(ScenarioParser.line(context))
+    return monologue(context)
+      .or(line(context))
       .chain((result: Result<Scenario[]>) =>
         ScenarioParser.scenarios(result.context).map((res: Result<Scenario[]>) => {
           let es = res.value.slice();
@@ -80,9 +80,9 @@ class ScenarioParser {
       .or(parsimmon.succeed(empty));
   }
 
-  static parse(input: string) {
+  export function parse(input: string) {
     let context = IndentContext.initialize;
-    return ScenarioParser.scenarios(context).parse(input);
+    return scenarios(context).parse(input);
   }
 }
 export = ScenarioParser;
