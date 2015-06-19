@@ -3,14 +3,25 @@ var assert = require('power-assert');
 var parsimmon = require('parsimmon');
 var Helper = require('../build/Helper');
 var IndentContext = require('../build/IndentContext');
+var IndentParser = require('../build/IndentParser');
 var ScenarioParser = require('../build/ScenarioParser');
 
 describe('ScenarioParser', function() {
   it('parse word', function() {
     var input = 'あa\n';
-    var actual = Helper.word.skip(parsimmon.regex(new RegExp('[\r\n]*'))).parse(input);
+    var actual = Helper.word.skip(IndentParser.newline.many()).parse(input);
       assert(actual.status);
       assert(actual.value === 'あa');
+  });
+  it('parse pre', function() {
+    var input = '```\n'
+      + 'test\n'
+      + 'test2\n'
+      + '```';
+    var parser = ScenarioParser.pre(IndentContext.initialize);
+    var actual = parser.parse(input);
+      assert(actual.status);
+      assert(actual.value === 'test\ntest2');
   });
   describe('monologue', function() {
     it('one word', function() {

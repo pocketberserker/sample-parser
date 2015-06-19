@@ -16,7 +16,7 @@ module ScenarioParser {
           if (i === context.currentLevel) {
             return parsimmon.succeed(null);
           } else {
-            parsimmon.fail("indent don't equal");
+            return parsimmon.fail("indent don't equal");
           }
         })
         .then(parsimmon.lazy(() => words(context)))
@@ -25,25 +25,43 @@ module ScenarioParser {
     );
   }
 
+  function sum(xs: number[]) {
+    if (xs.length <= 0) {
+      return 0;
+    }
+    else if (xs.length == 1) {
+      return xs[0];
+    }
+    return xs.reduce((a: number, b: number) => a + b);
+  }
+
+  function stringOfLength(s: string, n: number) {
+    if (n <= 0) {
+      return "";
+    }
+    return new Array(n + 1).join(s);
+  }
+
   export function pre(context: IndentContext): parsimmon.Parser<string> {
     var symbol = parsimmon.string("```");
+    var endSymbol = IndentParser.indent
+      .chain((i: number) => {
+        if (i === context.currentLevel) {
+          return parsimmon.succeed(null);
+        } else {
+          return parsimmon.fail("indent don't equal");
+        }
+      })
+      .then(symbol);
+    var lp = Helper.word.chain((w: string) => IndentParser.newline.result(w));
     return symbol.then(IndentParser.newline)
-      .then(parsimmon.regex(new RegExp("(^(```))*")))
-      .chain((text: string) =>
-        IndentParser.newline
-          .then(IndentParser.indent.chain((i: number) => {
-            // TODO: i === context.levels.sum
-            if (i === context.currentLevel) {
-              return parsimmon.succeed(null);
-            } else {
-              return parsimmon.fail("indent don't equal close pre");
-            }
-          }))
-          .then(symbol).result(text));
+      .then(endSymbol.or(lp).many().map((ws: string[]) =>
+        ws.filter((w: string) => w !== stringOfLength(" ", sum(context.levels)) + "```")
+          .join("\n")));
   }
 
   export function text(context: IndentContext): parsimmon.Parser<string> {
-    return words(context).or(pre(context));
+    return pre(context).or(words(context));
   }
 
   export function monologue(context: IndentContext): parsimmon.Parser<Result<Scenario>> {

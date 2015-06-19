@@ -161,8 +161,10 @@ declare module 'parsimmon' {
 		 is a parser that yields the current index of the parse.
 		 */
 		export var index: Parser<number>;
-        
-        export function custom<U>(parsingFunction: (success: (index: number, value: U) => Result<U>, failure: (index: number, expected: string) => Result<U>) => ((stream: string, index: number) => Result<U>)): Parser<U>;
+
+		export function custom<U>(parsingFunction: (success: (index: number, value: U) => Result<U>, failure: (index: number, expected: string) => Result<U>) => ((stream: string, index: number) => Result<U>)): Parser<U>;
+
+    export function takeWhile(predicate: (s: string) => boolean): Parser<string>;
 	}
 
 	export = Parsimmon;
