@@ -1,6 +1,7 @@
 "use strict";
 import parsimmon = require("parsimmon");
 import IndentContext = require("./IndentContext");
+import Helper = require("./Helper");
 
 class IndentParser {
   static get indent(): parsimmon.Parser<number> {
@@ -15,10 +16,14 @@ class IndentParser {
     return parsimmon.string("\r\n").or(parsimmon.string("\n"));
   }
 
-  static endOfLine(context: IndentContext) {
+  static endOfLine(context: IndentContext): parsimmon.Parser<IndentContext> {
     return parsimmon.eof.map((_: void) => context.updateNewLevel(0))
       .or(IndentParser.newline.then(
-        IndentParser.indent.map((i: number) => context.updateNewLevel(i))));
+        IndentParser.indent.map((i: number) => context.updateNewLevel(i))
+          .chain((ctx: IndentContext) =>
+            Helper.comment.then(IndentParser.endOfLine(ctx)).or(parsimmon.succeed(ctx))
+          )
+        ));
   }
 
   static openParen(level: number, context: IndentContext): parsimmon.Parser<IndentContext> {
@@ -43,7 +48,7 @@ class IndentParser {
             let l = levels.shift();
             return success(i, context.updateLevels(levels).updateCurrentLevel(l));
           }
-          return failure(i, "open paren error");
+          return failure(i, "close paren error");
         };
       };
     return parsimmon.custom(body);

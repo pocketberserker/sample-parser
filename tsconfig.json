@@ -13,9 +13,14 @@
   ],
   "files": [
     "./typings/tsd.d.ts",
+    "./src/Helper.ts",
     "./src/IndentContext.ts",
+    "./src/Result.ts",
     "./src/IndentParser.ts",
     "./src/TreeNode.ts",
-    "./src/TreeParser.ts"
+    "./src/TreeParser.ts",
+    "./src/Scenario.ts",
+    "./src/Monologue.ts",
+    "./src/ScenarioParser.ts"
   ]
 }
