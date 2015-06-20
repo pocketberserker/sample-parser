@@ -4,14 +4,14 @@ import Helper = require("./Helper");
 import IndentContext = require("./IndentContext");
 import IndentParser = require("./IndentParser");
 import Result = require("./Result");
-import Scenario = require("./Scenario");
-import Monologue = require("./Monologue");
-import Line = require("./Line");
-import Novel = require("./Novel");
-import Character = require("./Character");
-import Position = require("./Position");
-import Ending = require("./Ending");
-import Scene = require("./Scene");
+import Scenario = require("../scenario/Scenario");
+import Monologue = require("../scenario/Monologue");
+import Line = require("../scenario/Line");
+import Novel = require("../scenario/Novel");
+import Character = require("../scenario/Character");
+import Position = require("../scenario/Position");
+import Ending = require("../scenario/Ending");
+import Scene = require("../scenario/Scene");
 
 module ScenarioParser {
 
@@ -124,12 +124,18 @@ module ScenarioParser {
       .or(parsimmon.succeed(empty));
   }
 
+  function backgroundOption(context: IndentContext): parsimmon.Parser<Result<string>> {
+    return background(context).chain((b: string) =>
+      IndentParser.endOfLine(context).map((ctx: IndentContext) => new Result(b, ctx)))
+      .or(parsimmon.succeed(new Result(null, context)));
+  }
+
   function monologueBody(context: IndentContext): parsimmon.Parser<Result<Scene>> {
-    return characters(context).chain((cs: Result<Character[]>) =>
-      IndentParser.sameLevel(cs.context)
-        .then(text(cs.context).map((ws: string) => new Result(new Monologue(ws, cs.value), cs.context))
-      )
-    );
+    return backgroundOption(context).chain((b: Result<string>) =>
+      characters(b.context).chain((cs: Result<Character[]>) =>
+        IndentParser.sameLevel(cs.context)
+          .then(text(cs.context).map((ws: string) => new Result(new Monologue(ws, cs.value, b.value), cs.context))
+      )));
   }
 
   export function monologue(context: IndentContext): parsimmon.Parser<Result<Scene>> {
@@ -151,13 +157,13 @@ module ScenarioParser {
   var name: parsimmon.Parser<string> = Helper.keyValueString("name");
 
   function lineBody(context: IndentContext): parsimmon.Parser<Result<Scene>> {
-    return characters(context).chain((cs: Result<Character[]>) =>
-      name.chain((n: string) =>
-        IndentParser.endOfLine(cs.context).chain((eolCtx: IndentContext) =>
-          IndentParser.sameLevel(eolCtx)
-            .then(text(eolCtx).map((ws: string) => new Result(new Line(n, ws, cs.value), eolCtx))
-          )))
-    );
+    return backgroundOption(context).chain((b: Result<string>) =>
+      characters(b.context).chain((cs: Result<Character[]>) =>
+        name.chain((n: string) =>
+          IndentParser.endOfLine(cs.context).chain((eolCtx: IndentContext) =>
+            IndentParser.sameLevel(eolCtx)
+              .then(text(eolCtx).map((ws: string) => new Result(new Line(n, ws, cs.value, b.value), eolCtx))
+            )))));
   }
 
   export function line(context: IndentContext): parsimmon.Parser<Result<Scene>> {
@@ -197,10 +203,13 @@ module ScenarioParser {
       .or(parsimmon.string("ending").result((read: (name: string) => string) => new Ending()));
   }
 
+  function background(context: IndentContext) {
+    return IndentParser.sameLevel(context).then(Helper.keyValueString("background"));
+  }
+
   export function novel(context: IndentContext): parsimmon.Parser<Result<Novel>> {
     return (parsimmon.optWhitespace.then(Helper.comment).then(IndentParser.newline)).many()
-      .then(IndentParser.sameLevel(context))
-      .then(Helper.keyValueString("background")).chain((background: string) =>
+      .then(background(context)).chain((background: string) =>
         IndentParser.endOfLine(context)
         .chain((eolCtx: IndentContext) =>
           scene(eolCtx).chain((result: Result<Scene[]>) =>

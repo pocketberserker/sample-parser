@@ -1,10 +1,10 @@
 "use strict";
 var assert = require('power-assert');
 var parsimmon = require('parsimmon');
-var Helper = require('../build/Helper');
-var IndentContext = require('../build/IndentContext');
-var IndentParser = require('../build/IndentParser');
-var ScenarioParser = require('../build/ScenarioParser');
+var Helper = require('../build/parser/Helper');
+var IndentContext = require('../build/parser/IndentContext');
+var IndentParser = require('../build/parser/IndentParser');
+var ScenarioParser = require('../build/parser/ScenarioParser');
 
 describe('ScenarioParser', function() {
   describe('character', function() {
@@ -116,6 +116,17 @@ describe('ScenarioParser', function() {
       assert(actual.status);
       assert(actual.value.value.words === 'test');
     });
+    it('background option', function() {
+      var input = '# this is comment\n'
+        + 'monologue\n'
+        + '  background: fuga\n'
+        + '  test';
+      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var actual = parser.parse(input);
+      assert(actual.status);
+      assert(actual.value.value.background("defaultValue") === 'fuga');
+      assert(actual.value.value.words === 'test');
+    });
   });
   describe('line', function() {
     it('one word', function() {
@@ -125,6 +136,19 @@ describe('ScenarioParser', function() {
       var parser = ScenarioParser.line(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
+      assert(actual.value.value.name === 'hoge');
+      assert(actual.value.value.words === 'test');
+    });
+    it('background option', function() {
+      var input = '# this is comment\n'
+        + 'line\n'
+        + '  background: fuga\n'
+        + '  name: hoge\n'
+        + '  test';
+      var parser = ScenarioParser.line(IndentContext.initialize);
+      var actual = parser.parse(input);
+      assert(actual.status);
+      assert(actual.value.value.background("defaultValue") === 'fuga');
       assert(actual.value.value.name === 'hoge');
       assert(actual.value.value.words === 'test');
     });

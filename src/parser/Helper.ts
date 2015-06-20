@@ -38,5 +38,9 @@ module Helper {
       return parsimmon.succeed(res);
     }
   });
+  // 本当にこの実装でいいの？
+  export function opt<T>(parser: parsimmon.Parser<T>): parsimmon.Parser<T> {
+    return parser.or(parsimmon.succeed(null));
+  }
 }
 export = Helper;

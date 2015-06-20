@@ -3,7 +3,8 @@ import parsimmon = require("parsimmon");
 import IndentContext = require("./IndentContext");
 import IndentParser = require("./IndentParser");
 import Result = require("./Result");
-import TreeNode = require("./TreeNode");
+import TreeNode = require("../data/TreeNode");
+import Helper = require("./Helper");
 
 module TreeParser {
 
@@ -34,16 +35,12 @@ module TreeParser {
         }));
   }
 
-  export function opt<T>(parser: parsimmon.Parser<T>): parsimmon.Parser<T> {
-    return parser.or(parsimmon.succeed(null));
-  }
-
   export function element(context: IndentContext): parsimmon.Parser<Result<TreeNode>> {
     return IndentParser.sameLevel(context).then(
       elementName.chain((n: string) =>
         IndentParser.endOfLine(context).chain((eolCtx: IndentContext) =>
           parsimmon.lazy(() =>
-            opt(children(eolCtx)).map((result: Result<TreeNode[]>) => {
+            Helper.opt(children(eolCtx)).map((result: Result<TreeNode[]>) => {
               if (result) {
                 return new Result(new TreeNode(n, result.value), result.context);
               } else {

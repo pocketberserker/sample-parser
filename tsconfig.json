@@ -13,14 +13,19 @@
   ],
   "files": [
     "./typings/tsd.d.ts",
-    "./src/Helper.ts",
-    "./src/IndentContext.ts",
-    "./src/Result.ts",
-    "./src/IndentParser.ts",
-    "./src/TreeNode.ts",
-    "./src/TreeParser.ts",
-    "./src/Scenario.ts",
-    "./src/Monologue.ts",
-    "./src/ScenarioParser.ts"
+    "./src/parser/Helper.ts",
+    "./src/parser/IndentContext.ts",
+    "./src/parser/Result.ts",
+    "./src/parser/IndentParser.ts",
+    "./src/data/TreeNode.ts",
+    "./src/parser/TreeParser.ts",
+    "./src/scenario/Character.ts",
+    "./src/scenario/Scene.ts",
+    "./src/scenario/Monologue.ts",
+    "./src/scenario/Line.ts",
+    "./src/scenario/Scenario.ts",
+    "./src/scenario/Novel.ts",
+    "./src/scenario/Ending.ts",
+    "./src/parser/ScenarioParser.ts"
   ]
 }
