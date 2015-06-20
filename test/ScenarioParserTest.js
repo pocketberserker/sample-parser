@@ -153,6 +153,29 @@ describe('ScenarioParser', function() {
       assert.deepEqual(actual.value.value.words, ['test']);
     });
   });
+  describe('choices', function() {
+    it('single choice', function() {
+      var input = 'choices\n'
+        + '  test: scenario';
+      var parser = ScenarioParser.choices(IndentContext.initialize);
+      var actual = parser.parse(input);
+      assert(actual.status);
+      assert(actual.value.value.choices[0].choice === 'test');
+      assert(actual.value.value.choices[0].scenario === 'scenario');
+    });
+    it('background option', function() {
+      var input = '# this is comment\n'
+        + 'choices\n'
+        + '  background: fuga\n'
+        + '  test: scenario';
+      var parser = ScenarioParser.choices(IndentContext.initialize);
+      var actual = parser.parse(input);
+      assert(actual.status);
+      assert(actual.value.value.background("defaultValue") === 'fuga');
+      assert(actual.value.value.choices[0].choice === 'test');
+      assert(actual.value.value.choices[0].scenario === 'scenario');
+    });
+  });
   describe('novel', function() {
     it('background', function() {
       var input = 'background: black\n'

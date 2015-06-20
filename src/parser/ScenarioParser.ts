@@ -12,6 +12,8 @@ import Character = require("../scenario/Character");
 import Position = require("../scenario/Position");
 import Ending = require("../scenario/Ending");
 import Scene = require("../scenario/Scene");
+import Choice = require("../scenario/Choice");
+import Choices = require("../scenario/Choices");
 
 module ScenarioParser {
 
@@ -204,9 +206,46 @@ module ScenarioParser {
       });
   }
 
+  function choice(context: IndentContext): parsimmon.Parser<Choice[]> {
+    let w = parsimmon.regex(new RegExp("[^:^\r^\n]*"));
+    return IndentParser.sameLevel(context)
+      .then(w.chain((c: string) =>
+        Helper.lexeme(parsimmon.string(":")).then(Helper.word.map((s: string) => new Choice(c.trim(), s)))))
+      .chain((ch: Choice) =>
+        parsimmon.lazy(() => IndentParser.endOfLine(context).chain((eolCtx: IndentContext) => choice(eolCtx)))
+          .map((res: Choice[]) => {
+            let xs = res.slice();
+            xs.unshift(ch);
+            return xs;
+          }).or(parsimmon.succeed([ch]))
+        );
+  }
+  
+  function choicesBody(context: IndentContext): parsimmon.Parser<Result<Scene>> { 
+    return backgroundOption(context).chain((b: Result<string>) =>
+      characters(b.context).chain((cs: Result<Character[]>) =>
+        choice(cs.context).map((ch: Choice[]) => new Result(new Choices(b.value, cs.value, ch), cs.context))));
+  }
+
+  export function choices(context: IndentContext): parsimmon.Parser<Result<Scene>> {
+    return comment(context)
+      .then(IndentParser.sameLevel(context))
+      .then(parsimmon.string("choices"))
+      .then(IndentParser.endOfLine(context))
+      .chain((eolCtx: IndentContext) => {
+        var currentLevel = eolCtx.currentLevel;
+        return IndentParser.openParen(currentLevel, eolCtx).chain((openCtx: IndentContext) =>
+          choicesBody(openCtx).chain((result: Result<Scene>) =>
+            IndentParser.endOfLine(result.context).chain((closeEolCtx: IndentContext) =>
+              IndentParser.closeParen(currentLevel, closeEolCtx)
+                .map((closeCtx: IndentContext) => new Result(result.value, closeCtx))
+            )));
+      });
+  }
+
   export function scene(context: IndentContext): parsimmon.Parser<Result<Scene[]>> {
     let empty: Result<Scene[]> = new Result([], context);
-    return monologue(context).or(line(context))
+    return parsimmon.alt(monologue(context), line(context), choices(context))
       .chain((result: Result<Scene>) =>
         parsimmon.lazy(() => scene(result.context)).map((res: Result<Scene[]>) => {
           let es = res.value.slice();

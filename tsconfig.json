@@ -26,6 +26,8 @@
     "./src/scenario/Scenario.ts",
     "./src/scenario/Novel.ts",
     "./src/scenario/Ending.ts",
+    "./src/scenario/Choice.ts",
+    "./src/scenario/Choices.ts",
     "./src/parser/ScenarioParser.ts"
   ]
 }
