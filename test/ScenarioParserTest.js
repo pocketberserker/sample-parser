@@ -199,7 +199,7 @@ describe('ScenarioParser', function() {
       assert(actual.value.value.background === 'black');
       assert(actual.value.value.scene[0].name === 'hoge');
       assert.deepEqual(actual.value.value.scene[0].words, ['test']);
-      assert(actual.value.value.nextSceneName === 'another');
+      assert(actual.value.value.nextScenarioName === 'another');
     });
   });
   it('scene', function() {
