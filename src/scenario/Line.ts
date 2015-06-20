@@ -28,6 +28,16 @@ class Line implements Scene {
     }
   }
 
+  getImages() {
+    if (this._background) {
+      let xs = this._characters.map((c: Character) => c.image);
+      xs.unshift(this._background);
+      return xs;
+    } else {
+      return this._characters.map((c: Character) => c.image);
+    }
+  }
+
   constructor(name: string, words: string[], characters: Character[], background: string) {
     this._name = name;
     this._words = words;

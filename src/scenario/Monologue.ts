@@ -23,6 +23,16 @@ class Monologue implements Scene {
     }
   }
 
+  getImages() {
+    if (this._background) {
+      let xs = this._characters.map((c: Character) => c.image);
+      xs.unshift(this._background);
+      return xs;
+    } else {
+      return this._characters.map((c: Character) => c.image);
+    }
+  }
+
   constructor(words: string[], characters: Character[], background: string) {
     this._words = words;
     this._characters = characters;
