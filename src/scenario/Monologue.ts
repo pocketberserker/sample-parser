@@ -3,7 +3,7 @@ import Scene = require("./Scene");
 import Character = require("./Character");
 
 class Monologue implements Scene {
-  private _words: string;
+  private _words: string[];
   private _characters: Character[];
   private _background: string;
 
@@ -23,7 +23,7 @@ class Monologue implements Scene {
     }
   }
 
-  constructor(words: string, characters: Character[], background: string) {
+  constructor(words: string[], characters: Character[], background: string) {
     this._words = words;
     this._characters = characters;
     this._background = background;

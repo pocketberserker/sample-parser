@@ -15,7 +15,7 @@ import Scene = require("../scenario/Scene");
 
 module ScenarioParser {
 
-  export function words(context: IndentContext): parsimmon.Parser<string> {
+  export function words(context: IndentContext): parsimmon.Parser<string[]> {
     return Helper.word.chain((first: string) =>
       IndentParser.newline.then(IndentParser.indent
         .chain((i: number) => {
@@ -26,8 +26,12 @@ module ScenarioParser {
           }
         })
         .then(parsimmon.lazy(() => words(context)))
-        .map((ls: string) => first + "\n" + ls))
-        .or(parsimmon.succeed(first))
+        .map((ls: string[]) => {
+          let xs = ls.slice();
+          xs.unshift(first);
+          return xs;
+        }))
+        .or(parsimmon.succeed([first]))
     );
   }
 
@@ -47,7 +51,7 @@ module ScenarioParser {
     return new Array(n + 1).join(s);
   }
 
-  export function pre(context: IndentContext): parsimmon.Parser<string> {
+  export function pre(context: IndentContext): parsimmon.Parser<string[]> {
     var symbol = parsimmon.string("```");
     var endSymbol = IndentParser.indent
       .chain((i: number) => {
@@ -62,10 +66,10 @@ module ScenarioParser {
     return symbol.then(IndentParser.newline)
       .then(endSymbol.or(lp).many().map((ws: string[]) =>
         ws.filter((w: string) => w !== stringOfLength(" ", sum(context.levels)) + "```")
-          .join("\n")));
+        ));
   }
 
-  export function text(context: IndentContext): parsimmon.Parser<string> {
+  export function text(context: IndentContext): parsimmon.Parser<string[]> {
     return pre(context).or(words(context));
   }
 
@@ -134,7 +138,7 @@ module ScenarioParser {
     return backgroundOption(context).chain((b: Result<string>) =>
       characters(b.context).chain((cs: Result<Character[]>) =>
         IndentParser.sameLevel(cs.context)
-          .then(text(cs.context).map((ws: string) => new Result(new Monologue(ws, cs.value, b.value), cs.context))
+          .then(text(cs.context).map((ws: string[]) => new Result(new Monologue(ws, cs.value, b.value), cs.context))
       )));
   }
 
@@ -162,7 +166,7 @@ module ScenarioParser {
         name.chain((n: string) =>
           IndentParser.endOfLine(cs.context).chain((eolCtx: IndentContext) =>
             IndentParser.sameLevel(eolCtx)
-              .then(text(eolCtx).map((ws: string) => new Result(new Line(n, ws, cs.value, b.value), eolCtx))
+              .then(text(eolCtx).map((ws: string[]) => new Result(new Line(n, ws, cs.value, b.value), eolCtx))
             )))));
   }
 

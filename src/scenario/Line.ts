@@ -4,7 +4,7 @@ import Character = require("./Character");
 
 class Line implements Scene {
   private _name: string;
-  private _words: string;
+  private _words: string[];
   private _characters: Character[];
   private _background: string;
 
@@ -28,7 +28,7 @@ class Line implements Scene {
     }
   }
 
-  constructor(name: string, words: string, characters: Character[], background: string) {
+  constructor(name: string, words: string[], characters: Character[], background: string) {
     this._name = name;
     this._words = words;
     this._characters = characters;

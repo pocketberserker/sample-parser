@@ -57,7 +57,7 @@ describe('ScenarioParser', function() {
       var parser = ScenarioParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
-      assert(actual.value.value.words === 'test');
+      assert.deepEqual(actual.value.value.words, ['test']);
     });
     it('multiple word', function() {
       var input = 'monologue\n'
@@ -66,7 +66,7 @@ describe('ScenarioParser', function() {
       var parser = ScenarioParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
-      assert(actual.value.value.words === 'test\ntest2');
+      assert.deepEqual(actual.value.value.words, ['test', 'test2']);
     });
     it('pre', function() {
       var input = 'monologue\n'
@@ -77,7 +77,7 @@ describe('ScenarioParser', function() {
       var parser = ScenarioParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
-      assert(actual.value.value.words === 'test\ntest2');
+      assert.deepEqual(actual.value.value.words, ['test', 'test2']);
     });
     it('with character', function() {
       var input = 'monologue\n'
@@ -89,32 +89,11 @@ describe('ScenarioParser', function() {
       var actual = parser.parse(input);
 
       assert(actual.status);
-      assert(actual.value.value.words === 'test');
+      assert.deepEqual(actual.value.value.words, ['test']);
 
       assert(actual.value.value.characters[0].image === 'hoge');
       assert(actual.value.value.characters[0].position === 0);
       assert.deepEqual(actual.value.value.characters[0].frames, [0]);
-    });
-  });
-  describe('comment', function() {
-    it('single', function() {
-      var input = '# this is comment\n'
-        + 'monologue\n'
-        + '  test';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
-      var actual = parser.parse(input);
-      assert(actual.status);
-      assert(actual.value.value.words === 'test');
-    });
-    it('nested', function() {
-      var input = '# this is comment\n'
-        + 'monologue\n'
-        + '  # nested comment\n'
-        + '  test';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
-      var actual = parser.parse(input);
-      assert(actual.status);
-      assert(actual.value.value.words === 'test');
     });
     it('background option', function() {
       var input = '# this is comment\n'
@@ -125,7 +104,28 @@ describe('ScenarioParser', function() {
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value.background("defaultValue") === 'fuga');
-      assert(actual.value.value.words === 'test');
+      assert.deepEqual(actual.value.value.words, ['test']);
+    });
+  });
+  describe('comment', function() {
+    it('single', function() {
+      var input = '# this is comment\n'
+        + 'monologue\n'
+        + '  test';
+      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var actual = parser.parse(input);
+      assert(actual.status);
+      assert.deepEqual(actual.value.value.words, ['test']);
+    });
+    it('nested', function() {
+      var input = '# this is comment\n'
+        + 'monologue\n'
+        + '  # nested comment\n'
+        + '  test';
+      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var actual = parser.parse(input);
+      assert(actual.status);
+      assert.deepEqual(actual.value.value.words, ['test']);
     });
   });
   describe('line', function() {
@@ -137,7 +137,7 @@ describe('ScenarioParser', function() {
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value.name === 'hoge');
-      assert(actual.value.value.words === 'test');
+      assert.deepEqual(actual.value.value.words, ['test']);
     });
     it('background option', function() {
       var input = '# this is comment\n'
@@ -150,7 +150,7 @@ describe('ScenarioParser', function() {
       assert(actual.status);
       assert(actual.value.value.background("defaultValue") === 'fuga');
       assert(actual.value.value.name === 'hoge');
-      assert(actual.value.value.words === 'test');
+      assert.deepEqual(actual.value.value.words, ['test']);
     });
   });
   describe('novel', function() {
@@ -164,7 +164,7 @@ describe('ScenarioParser', function() {
       assert(actual.status);
       assert(actual.value.value.background === 'black');
       assert(actual.value.value.scene[0].name === 'hoge');
-      assert(actual.value.value.scene[0].words === 'test');
+      assert.deepEqual(actual.value.value.scene[0].words, ['test']);
     });
   });
   it('scene', function() {
@@ -177,7 +177,7 @@ describe('ScenarioParser', function() {
     var actual = parser.parse(input);
     assert(actual.status);
     assert(actual.value.value[0].name === 'hoge');
-    assert(actual.value.value[0].words === 'test');
-    assert(actual.value.value[1].words === 'test2');
+    assert.deepEqual(actual.value.value[0].words, ['test']);
+    assert.deepEqual(actual.value.value[1].words, ['test2']);
   });
 });
