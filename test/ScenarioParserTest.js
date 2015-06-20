@@ -3,7 +3,6 @@ var assert = require('power-assert');
 var parsimmon = require('parsimmon');
 var Helper = require('../build/parser/Helper');
 var IndentContext = require('../build/parser/IndentContext');
-var IndentParser = require('../build/parser/IndentParser');
 var ScenarioParser = require('../build/parser/ScenarioParser');
 
 describe('ScenarioParser', function() {
@@ -182,7 +181,7 @@ describe('ScenarioParser', function() {
         + 'line\n'
         + '  name: hoge\n'
         + '  test\n'
-        + 'ending';
+        + 'ending: end';
       var actual = ScenarioParser.parse(input);
       assert(actual.status);
       assert(actual.value.value.background === 'black');

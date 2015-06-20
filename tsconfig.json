@@ -28,6 +28,7 @@
     "./src/scenario/Ending.ts",
     "./src/scenario/Choice.ts",
     "./src/scenario/Choices.ts",
-    "./src/parser/ScenarioParser.ts"
+    "./src/parser/ScenarioParser.ts",
+    "./src/parser/EndingParser.ts"
   ]
 }

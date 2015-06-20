@@ -10,14 +10,14 @@ import Line = require("../scenario/Line");
 import Novel = require("../scenario/Novel");
 import Character = require("../scenario/Character");
 import Position = require("../scenario/Position");
-import Ending = require("../scenario/Ending");
 import Scene = require("../scenario/Scene");
 import Choice = require("../scenario/Choice");
 import Choices = require("../scenario/Choices");
+import EndingParser = require("./EndingParser");
 
 module ScenarioParser {
 
-  function comment(context: IndentContext) {
+  export function comment(context: IndentContext) {
     return (parsimmon.optWhitespace.then(Helper.comment).then(IndentParser.newline)).many();
   }
 
@@ -118,14 +118,15 @@ module ScenarioParser {
     }
   }
 
-  function block<T>(context: IndentContext, label: string, body: (ctx: IndentContext) => parsimmon.Parser<Result<T>>): parsimmon.Parser<Result<T>> {
+  export function block<T>(context: IndentContext, label: string, body: (ctx: IndentContext) => parsimmon.Parser<Result<T>>)
+    : parsimmon.Parser<Result<T>> {
     return comment(context)
       .then(IndentParser.sameLevel(context))
       .then(parsimmon.string(label))
       .then(IndentParser.endOfLine(context).chain((eolCtx: IndentContext) => {
         var currentLevel = eolCtx.currentLevel;
         return IndentParser.openParen(currentLevel, eolCtx).chain((openCtx: IndentContext) =>
-          body(openCtx).chain((ch: Result<T>) =>
+          comment(openCtx).then(body(openCtx)).chain((ch: Result<T>) =>
             IndentParser.endOfLine(ch.context).chain((closeEolCtx: IndentContext) =>
               IndentParser.closeParen(currentLevel, closeEolCtx).map((closeCtx: IndentContext) =>
                 new Result(ch.value, closeCtx)))))
@@ -225,13 +226,15 @@ module ScenarioParser {
   type LoadScene = (read: (name: string) => string) => Scenario;
 
   function nextScene(context: IndentContext): parsimmon.Parser<[string, LoadScene]> {
-    return IndentParser.sameLevel(context)
+    return comment(context)
+      .then(IndentParser.sameLevel(context))
       .then(Helper.keyValueString("next")
-        .map((name: string) => [name, (read: (name: string) => string) => parse(read(name))]))
-      .or(parsimmon.string("ending").result([null, (read: (name: string) => string) => new Ending()]));
+        .map<[string, LoadScene]>((name: string) => [name, (read: (name: string) => string) => parse(read(name))]))
+      .or(Helper.keyValueString("ending")
+        .map((name: string) => [name, (read: (name: string) => string) => EndingParser.parse(read(name))]));
   }
 
-  function background(context: IndentContext) {
+  export function background(context: IndentContext) {
     return IndentParser.sameLevel(context).then(Helper.keyValueString("background"));
   }
 
