@@ -93,7 +93,7 @@ module ScenarioParser {
     return comment(context).then(pre(context).or(words(context)));
   }
 
-  function view(context: IndentContext, p: Position): parsimmon.Parser<Character> {
+  function image(context: IndentContext, p: Position): parsimmon.Parser<Character> {
     return Helper.keyValueString("image").chain((image: string) =>
       IndentParser.newline.then(comment(context)).then(IndentParser.indent
         .chain((i: number) => {
@@ -126,7 +126,7 @@ module ScenarioParser {
           .chain((eolCtx: IndentContext) => {
             var currentLevel = eolCtx.currentLevel;
             return IndentParser.openParen(currentLevel, eolCtx).chain((openCtx: IndentContext) =>
-              view(openCtx, stringToPos(p)).chain((ch: Character) =>
+              image(openCtx, stringToPos(p)).chain((ch: Character) =>
                 IndentParser.endOfLine(openCtx).chain((closeEolCtx: IndentContext) =>
                   IndentParser.closeParen(currentLevel, closeEolCtx)
                     .map((closeCtx: IndentContext) => new Result(ch, closeCtx))
