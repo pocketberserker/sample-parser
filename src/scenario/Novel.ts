@@ -3,11 +3,16 @@ import Scenario = require("./Scenario");
 import Scene = require("./Scene");
 
 class Novel implements Scenario {
+  private _title: string;
   private _background: string;
   private _scene: Scene[];
   private _nextScenarioName: string;
   // 次のシーン名からファイルの中身を取得する関数を渡して次のシーンを得る
   private _next: (read: (name: string) => string) => Scenario;
+
+  get title() {
+    return this._title;
+  }
 
   get background() {
     return this._background;
@@ -32,10 +37,11 @@ class Novel implements Scenario {
     return xs;
   }
 
-  constructor(background: string, scene: Scene[], name: string, next: (read: (next: string) => string) => Scenario) {
+  constructor(title: string, background: string, scene: Scene[], nextName: string, next: (read: (next: string) => string) => Scenario) {
+    this._title = title;
     this._background = background;
     this._scene = scene;
-    this._nextScenarioName = name;
+    this._nextScenarioName = nextName;
     this._next = next;
   }
 }

@@ -147,7 +147,7 @@ describe('ScenarioParser', function() {
       var parser = ScenarioParser.line(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
-      assert(actual.value.value.background("defaultValue") === 'fuga');
+      assert(actual.value.value.background('defaultValue') === 'fuga');
       assert(actual.value.value.name === 'hoge');
       assert.deepEqual(actual.value.value.words, ['test']);
     });
@@ -170,32 +170,36 @@ describe('ScenarioParser', function() {
       var parser = ScenarioParser.choices(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
-      assert(actual.value.value.background("defaultValue") === 'fuga');
+      assert(actual.value.value.background('defaultValue') === 'fuga');
       assert(actual.value.value.choices[0].choice === 'test');
       assert(actual.value.value.choices[0].scenario === 'scenario');
     });
   });
   describe('novel', function() {
     it('background', function() {
-      var input = 'background: black\n'
+      var input = 'title: title\n'
+        + 'background: black\n'
         + 'line\n'
         + '  name: hoge\n'
         + '  test\n'
         + 'ending: end';
       var actual = ScenarioParser.parse(input);
       assert(actual.status);
+      assert(actual.value.value.title === 'title')
       assert(actual.value.value.background === 'black');
       assert(actual.value.value.scene[0].name === 'hoge');
       assert.deepEqual(actual.value.value.scene[0].words, ['test']);
     });
     it('next scene', function() {
-      var input = 'background: black\n'
+      var input = 'title: title\n'
+        + 'background: black\n'
         + 'line\n'
         + '  name: hoge\n'
         + '  test\n'
         + 'next: another';
       var actual = ScenarioParser.parse(input);
       assert(actual.status);
+      assert(actual.value.value.title === 'title')
       assert(actual.value.value.background === 'black');
       assert(actual.value.value.scene[0].name === 'hoge');
       assert.deepEqual(actual.value.value.scene[0].words, ['test']);

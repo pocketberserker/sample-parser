@@ -7,12 +7,14 @@ var EndingParser = require('../build/parser/EndingParser');
 
 describe('EndingParser', function() {
   it('background', function() {
-      var input = 'background: black\n'
+      var input = 'title: title\n'
+      + 'background: black\n'
       + 'line\n'
       + '  name: hoge\n'
       + '  test';
     var actual = EndingParser.parse(input);
     assert(actual.status);
+    assert(actual.value.value.title === 'title')
     assert(actual.value.value.background === 'black');
     assert(actual.value.value.scene[0].name === 'hoge');
     assert.deepEqual(actual.value.value.scene[0].words, ['test']);

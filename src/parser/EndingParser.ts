@@ -48,12 +48,11 @@ module EndingParser {
   }
 
   export function novel(context: IndentContext): parsimmon.Parser<Result<Ending>> {
-    return ScenarioParser.comment(context)
-      .then(ScenarioParser.background(context)).chain((background: string) =>
+    return ScenarioParser.scenarioInfomation(context).chain((info: [string, string]) =>
         IndentParser.endOfLine(context)
         .chain((eolCtx: IndentContext) =>
           ScenarioParser.scene(eolCtx).map((result: Result<Scene[]>) =>
-              new Result(new Ending(background, result.value), result.context)
+              new Result(new Ending(info[0], info[1], result.value), result.context)
             )
         ));
   }

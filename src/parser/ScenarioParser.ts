@@ -234,20 +234,26 @@ module ScenarioParser {
         .map((name: string) => [name, (read: (name: string) => string) => EndingParser.parse(read(name))]));
   }
 
-  export function background(context: IndentContext) {
-    return IndentParser.sameLevel(context).then(Helper.keyValueString("background"));
+  function background(context: IndentContext) {
+    return comment(context).then(IndentParser.sameLevel(context)).then(Helper.keyValueString("background"));
+  }
+
+  function scenarioTitle(context: IndentContext) {
+    return comment(context).then(IndentParser.sameLevel(context)).then(Helper.keyValueString("title"));
+  }
+
+  export function scenarioInfomation(context: IndentContext): parsimmon.Parser<[string, string]> {
+    return scenarioTitle(context).chain((name: string) =>
+      IndentParser.endOfLine(context).chain((eolCtx: IndentContext) =>
+        background(eolCtx).map<[string, string]>((b: string) => [name, b])));
   }
 
   export function novel(context: IndentContext): parsimmon.Parser<Result<Novel>> {
-    return comment(context)
-      .then(background(context)).chain((background: string) =>
-        IndentParser.endOfLine(context)
-        .chain((eolCtx: IndentContext) =>
-          scene(eolCtx).chain((result: Result<Scene[]>) =>
-            nextScene(result.context).map((nf: [string, LoadScene]) =>
-              new Result(new Novel(background, result.value, nf[0], nf[1]), result.context)
-            ))
-        ));
+    return scenarioInfomation(context).chain((info: [string, string]) =>
+      IndentParser.endOfLine(context).chain((eolCtx: IndentContext) =>
+        scene(eolCtx).chain((result: Result<Scene[]>) =>
+          nextScene(result.context).map((nf: [string, LoadScene]) =>
+            new Result(new Novel(info[0], info[1], result.value, nf[0], nf[1]), result.context)))));
   }
 
   export function parse(input: string) {
