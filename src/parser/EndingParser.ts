@@ -10,6 +10,7 @@ import Line = require("../scenario/Line");
 import Scene = require("../scenario/Scene");
 import Ending = require("../scenario/Ending");
 import ScenarioParser = require("./ScenarioParser");
+import ScenarioResult = require("./ScenarioResult");
 
 module EndingParser {
 
@@ -59,7 +60,7 @@ module EndingParser {
 
   export function parse(input: string) {
     let context = IndentContext.initialize;
-    return novel(context).parse(input.trim());
+    return new ScenarioResult(novel(context).parse(input.trim()));
   }
 }
 export = EndingParser;

@@ -14,10 +14,10 @@ describe('EndingParser', function() {
       + '  test';
     var actual = EndingParser.parse(input);
     assert(actual.status);
-    assert(actual.value.value.title === 'title')
-    assert(actual.value.value.background === 'black');
-    assert(actual.value.value.scene[0].name === 'hoge');
-    assert.deepEqual(actual.value.value.scene[0].words, ['test']);
+    assert(actual.value.title === 'title')
+    assert(actual.value.background === 'black');
+    assert(actual.value.scene[0].name === 'hoge');
+    assert.deepEqual(actual.value.scene[0].words, ['test']);
   });
   it('scene', function() {
     var input = 'line\n'

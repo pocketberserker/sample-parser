@@ -185,10 +185,10 @@ describe('ScenarioParser', function() {
         + 'ending: end';
       var actual = ScenarioParser.parse(input);
       assert(actual.status);
-      assert(actual.value.value.title === 'title')
-      assert(actual.value.value.background === 'black');
-      assert(actual.value.value.scene[0].name === 'hoge');
-      assert.deepEqual(actual.value.value.scene[0].words, ['test']);
+      assert(actual.value.title === 'title')
+      assert(actual.value.background === 'black');
+      assert(actual.value.scene[0].name === 'hoge');
+      assert.deepEqual(actual.value.scene[0].words, ['test']);
     });
     it('next scene', function() {
       var input = 'title: title\n'
@@ -199,11 +199,11 @@ describe('ScenarioParser', function() {
         + 'next: another';
       var actual = ScenarioParser.parse(input);
       assert(actual.status);
-      assert(actual.value.value.title === 'title')
-      assert(actual.value.value.background === 'black');
-      assert(actual.value.value.scene[0].name === 'hoge');
-      assert.deepEqual(actual.value.value.scene[0].words, ['test']);
-      assert(actual.value.value.nextScenarioName === 'another');
+      assert(actual.value.title === 'title')
+      assert(actual.value.background === 'black');
+      assert(actual.value.scene[0].name === 'hoge');
+      assert.deepEqual(actual.value.scene[0].words, ['test']);
+      assert(actual.value.nextScenarioName === 'another');
     });
   });
   it('scene', function() {

@@ -14,6 +14,7 @@ import Scene = require("../scenario/Scene");
 import Choice = require("../scenario/Choice");
 import Choices = require("../scenario/Choices");
 import EndingParser = require("./EndingParser");
+import ScenarioResult = require("./ScenarioResult");
 
 module ScenarioParser {
 
@@ -258,7 +259,7 @@ module ScenarioParser {
 
   export function parse(input: string) {
     let context = IndentContext.initialize;
-    return novel(context).parse(input.trim());
+    return new ScenarioResult(novel(context).parse(input.trim()));
   }
 }
 export = ScenarioParser;
