@@ -2,7 +2,7 @@
 import parsimmon = require("parsimmon");
 import IndentContext = require("./IndentContext");
 import IndentParser = require("./IndentParser");
-import Result = require("./Result");
+import IndentResult = require("./IndentResult");
 import TreeNode = require("../data/TreeNode");
 import Helper = require("./Helper");
 
@@ -12,39 +12,39 @@ module TreeParser {
     parsimmon.letter.or(parsimmon.digit).many()
       .map((ns: string[]) => ns.join(""));
 
-  function elems(context: IndentContext): parsimmon.Parser<Result<TreeNode[]>> {
-    let empty: Result<TreeNode[]> = new Result([], context);
+  function elems(context: IndentContext): parsimmon.Parser<IndentResult<TreeNode[]>> {
+    let empty: IndentResult<TreeNode[]> = new IndentResult([], context);
     return element(context)
-      .chain((result: Result<TreeNode>) =>
-        elems(result.context).map((res: Result<TreeNode[]>) => {
+      .chain((result: IndentResult<TreeNode>) =>
+        elems(result.context).map((res: IndentResult<TreeNode[]>) => {
           let es = res.value.slice();
           es.unshift(result.value);
-          return new Result(es, res.context);
+          return new IndentResult(es, res.context);
         }))
       .or(parsimmon.succeed(empty));
   }
 
-  export function children(context: IndentContext): parsimmon.Parser<Result<TreeNode[]>> {
+  export function children(context: IndentContext): parsimmon.Parser<IndentResult<TreeNode[]>> {
     var currentLevel = context.currentLevel;
     return IndentParser.openParen(currentLevel, context).chain((openCtx: IndentContext) =>
       parsimmon.lazy(() => elems(openCtx))
-        .chain((result: Result<TreeNode[]>) => {
+        .chain((result: IndentResult<TreeNode[]>) => {
           return IndentParser.closeParen(currentLevel, result.context) .map((closeCtx: IndentContext) => {
-            return new Result(result.value, closeCtx);
+            return new IndentResult(result.value, closeCtx);
           });
         }));
   }
 
-  export function element(context: IndentContext): parsimmon.Parser<Result<TreeNode>> {
+  export function element(context: IndentContext): parsimmon.Parser<IndentResult<TreeNode>> {
     return IndentParser.sameLevel(context).then(
       elementName.chain((n: string) =>
         IndentParser.endOfLine(context).chain((eolCtx: IndentContext) =>
           parsimmon.lazy(() =>
-            Helper.opt(children(eolCtx)).map((result: Result<TreeNode[]>) => {
+            Helper.opt(children(eolCtx)).map((result: IndentResult<TreeNode[]>) => {
               if (result) {
-                return new Result(new TreeNode(n, result.value), result.context);
+                return new IndentResult(new TreeNode(n, result.value), result.context);
               } else {
-                return new Result(new TreeNode(n), eolCtx);
+                return new IndentResult(new TreeNode(n), eolCtx);
               }
             })))));
   }

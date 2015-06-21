@@ -15,7 +15,7 @@
     "./typings/tsd.d.ts",
     "./src/parser/Helper.ts",
     "./src/parser/IndentContext.ts",
-    "./src/parser/Result.ts",
+    "./src/parser/IndentResult.ts",
     "./src/parser/IndentParser.ts",
     "./src/data/TreeNode.ts",
     "./src/parser/TreeParser.ts",

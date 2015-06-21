@@ -1,7 +1,7 @@
 "use strict";
 import IndentContext = require("./IndentContext");
 
-class Result<T> {
+class IndentResult<T> {
   private _value: T;
   private _context: IndentContext;
 
@@ -18,4 +18,4 @@ class Result<T> {
     this._context = context;
   }
 }
-export = Result;
+export = IndentResult;
