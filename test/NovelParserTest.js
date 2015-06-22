@@ -3,15 +3,15 @@ var assert = require('power-assert');
 var parsimmon = require('parsimmon');
 var Helper = require('../build/parser/Helper');
 var IndentContext = require('../build/parser/IndentContext');
-var ScenarioParser = require('../build/parser/ScenarioParser');
+var NovelParser = require('../build/parser/NovelParser');
 
-describe('ScenarioParser', function() {
+describe('NovelParser', function() {
   describe('character', function() {
     var check = function(label, pos) {
       var input = label + '\n'
         + '  image: hoge\n'
         + '  frames: [0]';
-      var parser = ScenarioParser.characters(IndentContext.initialize);
+      var parser = NovelParser.characters(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value[0].image === 'hoge');
@@ -31,7 +31,7 @@ describe('ScenarioParser', function() {
         + 'right\n'
         + '  image: scala\n'
         + '  frames: [1,2]';
-      var parser = ScenarioParser.characters(IndentContext.initialize);
+      var parser = NovelParser.characters(IndentContext.initialize);
       var actual = parser.parse(input);
 
       assert(actual.status);
@@ -53,7 +53,7 @@ describe('ScenarioParser', function() {
     it('one word', function() {
       var input = 'monologue\n'
         + '  test';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var parser = NovelParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert.deepEqual(actual.value.value.words, ['test']);
@@ -62,7 +62,7 @@ describe('ScenarioParser', function() {
       var input = 'monologue\n'
         + '  test\n'
         + '  test2';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var parser = NovelParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert.deepEqual(actual.value.value.words, ['test', 'test2']);
@@ -73,7 +73,7 @@ describe('ScenarioParser', function() {
         + 'test\n'
         + 'test2\n'
         + '   ```';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var parser = NovelParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert.deepEqual(actual.value.value.words, ['test', 'test2']);
@@ -84,7 +84,7 @@ describe('ScenarioParser', function() {
         + '    image: hoge\n'
         + '    frames: [0]\n'
         + '  test';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var parser = NovelParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
 
       assert(actual.status);
@@ -99,7 +99,7 @@ describe('ScenarioParser', function() {
         + 'monologue\n'
         + '  background: fuga\n'
         + '  test';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var parser = NovelParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value.background("defaultValue") === 'fuga');
@@ -111,7 +111,7 @@ describe('ScenarioParser', function() {
       var input = '# this is comment\n'
         + 'monologue\n'
         + '  test';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var parser = NovelParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert.deepEqual(actual.value.value.words, ['test']);
@@ -121,7 +121,7 @@ describe('ScenarioParser', function() {
         + 'monologue\n'
         + '  # nested comment\n'
         + '  test';
-      var parser = ScenarioParser.monologue(IndentContext.initialize);
+      var parser = NovelParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert.deepEqual(actual.value.value.words, ['test']);
@@ -132,7 +132,7 @@ describe('ScenarioParser', function() {
       var input = 'line\n'
         + '  name: hoge\n'
         + '  test';
-      var parser = ScenarioParser.line(IndentContext.initialize);
+      var parser = NovelParser.line(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value.name === 'hoge');
@@ -144,7 +144,7 @@ describe('ScenarioParser', function() {
         + '  background: fuga\n'
         + '  name: hoge\n'
         + '  test';
-      var parser = ScenarioParser.line(IndentContext.initialize);
+      var parser = NovelParser.line(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value.background('defaultValue') === 'fuga');
@@ -156,7 +156,7 @@ describe('ScenarioParser', function() {
     it('single choice', function() {
       var input = 'choices\n'
         + '  test: scenario';
-      var parser = ScenarioParser.choices(IndentContext.initialize);
+      var parser = NovelParser.choices(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value.choices[0].choice === 'test');
@@ -167,7 +167,7 @@ describe('ScenarioParser', function() {
         + 'choices\n'
         + '  background: fuga\n'
         + '  test: scenario';
-      var parser = ScenarioParser.choices(IndentContext.initialize);
+      var parser = NovelParser.choices(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value.background('defaultValue') === 'fuga');
@@ -183,7 +183,7 @@ describe('ScenarioParser', function() {
         + '  name: hoge\n'
         + '  test\n'
         + 'ending: end';
-      var actual = ScenarioParser.parse(input);
+      var actual = NovelParser.parse(input);
       assert(actual.status);
       assert(actual.value.title === 'title')
       assert(actual.value.background === 'black');
@@ -197,7 +197,7 @@ describe('ScenarioParser', function() {
         + '  name: hoge\n'
         + '  test\n'
         + 'next: another';
-      var actual = ScenarioParser.parse(input);
+      var actual = NovelParser.parse(input);
       assert(actual.status);
       assert(actual.value.title === 'title')
       assert(actual.value.background === 'black');
@@ -212,7 +212,7 @@ describe('ScenarioParser', function() {
       + '  test\n'
       + 'monologue\n'
       + '  test2';
-    var parser = ScenarioParser.scene(IndentContext.initialize);
+    var parser = NovelParser.scene(IndentContext.initialize);
     var actual = parser.parse(input);
     assert(actual.status);
     assert(actual.value.value[0].name === 'hoge');
@@ -227,7 +227,7 @@ describe('ScenarioParser', function() {
       + '  ```\n'
       + 'monologue\n'
       + '  test2';
-    var parser = ScenarioParser.scene(IndentContext.initialize);
+    var parser = NovelParser.scene(IndentContext.initialize);
     var actual = parser.parse(input);
     assert(actual.status);
     assert(actual.value.value[0].name === 'hoge');

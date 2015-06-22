@@ -7,7 +7,7 @@ class Choices implements Scene {
   private _background: string;
   private _characters: Character[];
   private _choices: Choice[];
-    
+
   background(defaultValue: string) {
     if (this._background) {
       return this._background;
@@ -15,7 +15,7 @@ class Choices implements Scene {
       return defaultValue;
     }
   }
-  
+
   getImages() {
     if (this._background) {
       let xs = this._characters.map((c: Character) => c.image);
@@ -25,15 +25,15 @@ class Choices implements Scene {
       return this._characters.map((c: Character) => c.image);
     }
   }
-  
+
   get characters() {
     return this._characters;
   }
-  
+
   get choices() {
     return this._choices;
   }
-  
+
   constructor(background: string, characters: Character[], choices: Choice[]) {
     this._background = background;
     this._characters = characters;

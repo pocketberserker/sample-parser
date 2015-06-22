@@ -4,7 +4,6 @@ import Helper = require("./Helper");
 import IndentContext = require("./IndentContext");
 import IndentParser = require("./IndentParser");
 import IndentResult = require("./IndentResult");
-import Scenario = require("../scenario/Scenario");
 import Monologue = require("../scenario/Monologue");
 import Line = require("../scenario/Line");
 import Scene = require("../scenario/Scene");
@@ -25,10 +24,12 @@ module EndingParser {
         }))
       .or(parsimmon.succeed(empty));
   }
-  
+
   function monologueBody(context: IndentContext): parsimmon.Parser<IndentResult<Scene>> {
-    return IndentParser.sameLevel(context)
-      .then(ScenarioParser.text(context).map((ws: string[]) => new IndentResult(new Monologue(ws, [], null), context)));
+    return ScenarioParser.backgroundOption(context).chain((b: IndentResult<string>) =>
+      IndentParser.sameLevel(b.context)
+        .then(ScenarioParser.text(b.context).map((ws: string[]) =>
+          new IndentResult(new Monologue(ws, [], b.value), b.context))));
   }
 
   export function monologue(context: IndentContext): parsimmon.Parser<IndentResult<Scene>> {
@@ -38,21 +39,23 @@ module EndingParser {
   var name: parsimmon.Parser<string> = Helper.keyValueString("name");
 
   function lineBody(context: IndentContext): parsimmon.Parser<IndentResult<Scene>> {
-    return IndentParser.sameLevel(context).then(name).chain((n: string) =>
-      IndentParser.endOfLine(context).chain((eolCtx: IndentContext) =>
-        IndentParser.sameLevel(eolCtx)
-          .then(ScenarioParser.text(eolCtx).map((ws: string[]) => new IndentResult(new Line(n, ws, [], null), eolCtx)))));
+    return ScenarioParser.backgroundOption(context).chain((b: IndentResult<string>) =>
+      IndentParser.sameLevel(b.context).then(name).chain((n: string) =>
+        IndentParser.endOfLine(b.context).chain((eolCtx: IndentContext) =>
+          IndentParser.sameLevel(eolCtx)
+            .then(ScenarioParser.text(eolCtx).map((ws: string[]) =>
+              new IndentResult(new Line(n, ws, [], b.value), eolCtx))))));
   }
 
   export function line(context: IndentContext): parsimmon.Parser<IndentResult<Scene>> {
     return ScenarioParser.block(context, "line", lineBody);
   }
 
-  export function novel(context: IndentContext): parsimmon.Parser<IndentResult<Ending>> {
-    return ScenarioParser.scenarioInfomation(context).chain((info: [string, string]) =>
+  export function ending(context: IndentContext): parsimmon.Parser<IndentResult<Ending>> {
+    return ScenarioParser.scenarioInformation(context).chain((info: [string, string]) =>
         IndentParser.endOfLine(context)
         .chain((eolCtx: IndentContext) =>
-          ScenarioParser.scene(eolCtx).map((result: IndentResult<Scene[]>) =>
+          scene(eolCtx).map((result: IndentResult<Scene[]>) =>
               new IndentResult(new Ending(info[0], info[1], result.value), result.context)
             )
         ));
@@ -60,7 +63,7 @@ module EndingParser {
 
   export function parse(input: string) {
     let context = IndentContext.initialize;
-    return new ScenarioResult(novel(context).parse(input.trim()));
+    return new ScenarioResult(ending(context).parse(input.trim()));
   }
 }
 export = EndingParser;

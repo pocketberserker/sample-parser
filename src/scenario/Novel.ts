@@ -1,6 +1,7 @@
 "use strict";
 import Scenario = require("./Scenario");
 import Scene = require("./Scene");
+import ScenarioResult = require("../parser/ScenarioResult");
 
 class Novel implements Scenario {
   private _title: string;
@@ -8,7 +9,7 @@ class Novel implements Scenario {
   private _scene: Scene[];
   private _nextScenarioName: string;
   // 次のシーン名からファイルの中身を取得する関数を渡して次のシーンを得る
-  private _next: (read: (name: string) => string) => Scenario;
+  private _next: (read: (name: string) => string) => ScenarioResult<Scenario>;
 
   get title() {
     return this._title;
@@ -37,7 +38,12 @@ class Novel implements Scenario {
     return xs;
   }
 
-  constructor(title: string, background: string, scene: Scene[], nextName: string, next: (read: (next: string) => string) => Scenario) {
+  constructor(
+    title: string,
+    background: string,
+    scene: Scene[],
+    nextName: string,
+    next: (read: (next: string) => string) => ScenarioResult<Scenario>) {
     this._title = title;
     this._background = background;
     this._scene = scene;
