@@ -1,3 +1,5 @@
 "use strict";
-interface Scenario {}
+interface Scenario {
+  title: string;
+}
 export = Scenario;
