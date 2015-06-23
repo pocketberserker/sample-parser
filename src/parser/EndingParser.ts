@@ -51,14 +51,18 @@ module EndingParser {
     return ScenarioParser.block(context, "line", lineBody);
   }
 
+  function fin(context: IndentContext) {
+    return ScenarioParser.comment(context)
+      .then(IndentParser.sameLevel(context))
+      .then(Helper.keyValueString("fin"));
+  }
+
   export function ending(context: IndentContext): parsimmon.Parser<IndentResult<Ending>> {
     return ScenarioParser.scenarioInformation(context).chain((info: [string, string]) =>
-        IndentParser.endOfLine(context)
-        .chain((eolCtx: IndentContext) =>
-          scene(eolCtx).map((result: IndentResult<Scene[]>) =>
-              new IndentResult(new Ending(info[0], info[1], result.value), result.context)
-            )
-        ));
+      IndentParser.endOfLine(context).chain((eolCtx: IndentContext) =>
+        scene(eolCtx).chain((result: IndentResult<Scene[]>) =>
+          fin(result.context).map((f: string) =>
+            new IndentResult(new Ending(info[0], info[1], result.value, f), result.context)))));
   }
 
   export function parse(input: string) {
