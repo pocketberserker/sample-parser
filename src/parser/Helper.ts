@@ -40,7 +40,7 @@ module Helper {
   });
   // 本当にこの実装でいいの？
   export function opt<T>(parser: parsimmon.Parser<T>): parsimmon.Parser<T> {
-    return parser.or(parsimmon.succeed(null));
+    return parser.or(parsimmon.succeed(undefined));
   }
 }
 export = Helper;

@@ -1,9 +1,10 @@
 "use strict";
 import parsimmon = require("parsimmon");
 import IndentResult = require("./IndentResult");
+import Scenario = require("../scenario/Scenario");
 
-class ScenarioResult<T> implements parsimmon.Result<T> {
-    private result: parsimmon.Result<IndentResult<T>>;
+class ScenarioResult implements parsimmon.Result<Scenario> {
+    private result: parsimmon.Result<IndentResult<Scenario>>;
 
     get value() {
         return this.result.value.value;
@@ -21,7 +22,7 @@ class ScenarioResult<T> implements parsimmon.Result<T> {
         return this.result.expected;
     }
 
-    constructor(res: parsimmon.Result<IndentResult<T>>) {
+    constructor(res: parsimmon.Result<IndentResult<Scenario>>) {
         this.result = res;
     }
 }

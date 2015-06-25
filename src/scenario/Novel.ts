@@ -9,7 +9,7 @@ class Novel implements Scenario {
   private _scene: Scene[];
   private _nextScenarioName: string;
   // 次のシーン名からファイルの中身を取得する関数を渡して次のシーンを得る
-  private _next: (read: (name: string) => string) => ScenarioResult<Scenario>;
+  private _next: (read: (name: string) => string) => ScenarioResult;
 
   get title() {
     return this._title;
@@ -43,7 +43,7 @@ class Novel implements Scenario {
     background: string,
     scene: Scene[],
     nextName: string,
-    next: (read: (next: string) => string) => ScenarioResult<Scenario>) {
+    next: (read: (next: string) => string) => ScenarioResult) {
     this._title = title;
     this._background = background;
     this._scene = scene;

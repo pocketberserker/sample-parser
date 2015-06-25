@@ -12,7 +12,7 @@ module ScenarioParser {
       IndentParser.newline.then(IndentParser.indent
         .chain((i: number) => {
           if (i === context.currentLevel) {
-            return parsimmon.succeed(null);
+            return parsimmon.succeed(undefined);
           } else {
             return parsimmon.fail("indent don't equal");
           }
@@ -49,7 +49,7 @@ module ScenarioParser {
     let endSymbol = IndentParser.indent
       .chain((i: number) => {
         if (i === context.currentLevel) {
-          return parsimmon.succeed(null);
+          return parsimmon.succeed(undefined);
         } else {
           return parsimmon.fail("indent don't equal");
         }
@@ -107,7 +107,7 @@ module ScenarioParser {
   export function backgroundOption(context: IndentContext): parsimmon.Parser<IndentResult<string>> {
     return background(context).chain((b: string) =>
       IndentParser.endOfLine(context).map((ctx: IndentContext) => new IndentResult(b, ctx)))
-      .or(parsimmon.succeed(new IndentResult(null, context)));
+      .or(parsimmon.succeed(new IndentResult(undefined, context)));
   }
 
   function background(context: IndentContext) {

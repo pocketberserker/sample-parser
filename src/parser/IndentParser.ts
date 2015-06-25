@@ -9,7 +9,7 @@ module IndentParser {
     parsimmon.optWhitespace.map((w: string) => w.length);
 
   export function sameLevel(context: IndentContext): parsimmon.Parser<void> {
-    return context.currentLevel === context.newLevel ? parsimmon.succeed(null) : parsimmon.fail("indent don't same level");
+    return context.currentLevel === context.newLevel ? parsimmon.succeed(undefined) : parsimmon.fail("indent don't same level");
   }
 
   export var newline: parsimmon.Parser<string> =

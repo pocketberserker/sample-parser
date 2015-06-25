@@ -4,7 +4,6 @@ import Helper = require("./Helper");
 import IndentContext = require("./IndentContext");
 import IndentParser = require("./IndentParser");
 import IndentResult = require("./IndentResult");
-import Scenario = require("../scenario/Scenario");
 import Monologue = require("../scenario/Monologue");
 import Line = require("../scenario/Line");
 import Novel = require("../scenario/Novel");
@@ -24,7 +23,7 @@ module NovelParser {
       IndentParser.newline.then(ScenarioParser.comment(context)).then(IndentParser.indent
         .chain((i: number) => {
           if (i === context.currentLevel) {
-            return parsimmon.succeed(null);
+            return parsimmon.succeed(undefined);
           } else {
             return parsimmon.fail("indent don't equal");
           }
@@ -95,11 +94,20 @@ module NovelParser {
     return ScenarioParser.block(context, "line", lineBody);
   }
 
+  type LoadScene = (read: (name: string) => string) => ScenarioResult;
+
+  function loadSceneFrom(name: string, f: (input: string) => ScenarioResult) {
+    return (read: (name: string) => string) => f(read(name));
+  }
+
   function choice(context: IndentContext): parsimmon.Parser<Choice[]> {
     let w = parsimmon.regex(new RegExp("[^:^\r^\n]*"));
+    let next = (c: string) => Helper.keyValueString("next").map((s: string) =>
+      new Choice(c.trim(), s, loadSceneFrom(s, parse)))
+      .or(Helper.keyValueString("ending").map((s: string) =>
+        new Choice(c.trim(), s, loadSceneFrom(s, EndingParser.parse))));
     return IndentParser.sameLevel(context)
-      .then(w.chain((c: string) =>
-        Helper.lexeme(parsimmon.string(":")).then(Helper.word.map((s: string) => new Choice(c.trim(), s)))))
+      .then(w.chain((c: string) => Helper.lexeme(parsimmon.string(":")).then(next(c))))
       .chain((ch: Choice) =>
         parsimmon.lazy(() => IndentParser.endOfLine(context).chain((eolCtx: IndentContext) => choice(eolCtx)))
           .map((res: Choice[]) => {
@@ -132,17 +140,12 @@ module NovelParser {
       .or(parsimmon.succeed(empty));
   }
 
-  type LoadScene = (read: (name: string) => string) => ScenarioResult<Scenario>;
-
   function nextScene(context: IndentContext): parsimmon.Parser<[string, LoadScene]> {
     return ScenarioParser.comment(context)
       .then(IndentParser.sameLevel(context))
       .then(Helper.keyValueString("next")
-        .map<[string, LoadScene]>((name: string) =>
-          [name, (read: (name: string) => string) => parse(read(name))]))
-      .or(Helper.keyValueString("ending")
-        .map((name: string) =>
-          [name, (read: (name: string) => string) => EndingParser.parse(read(name))]));
+        .map<[string, LoadScene]>((name: string) => [name, loadSceneFrom(name, parse)]))
+      .or(Helper.keyValueString("ending").map((name: string) => [name, loadSceneFrom(name, EndingParser.parse)]));
   }
 
   export function novel(context: IndentContext): parsimmon.Parser<IndentResult<Novel>> {

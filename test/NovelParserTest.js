@@ -153,9 +153,18 @@ describe('NovelParser', function() {
     });
   });
   describe('choices', function() {
-    it('single choice', function() {
+    it('single next choice', function() {
       var input = 'choices\n'
-        + '  test: scenario';
+        + '  test:next: scenario';
+      var parser = NovelParser.choices(IndentContext.initialize);
+      var actual = parser.parse(input);
+      assert(actual.status);
+      assert(actual.value.value.choices[0].choice === 'test');
+      assert(actual.value.value.choices[0].scenario === 'scenario');
+    });
+    it('single ending choice', function() {
+      var input = 'choices\n'
+        + '  test:ending: scenario';
       var parser = NovelParser.choices(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
@@ -166,7 +175,7 @@ describe('NovelParser', function() {
       var input = '# this is comment\n'
         + 'choices\n'
         + '  background: fuga\n'
-        + '  test: scenario';
+        + '  test:next: scenario';
       var parser = NovelParser.choices(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
