@@ -5,6 +5,8 @@ class Character {
   private _image: string;
   private _frames: number[];
   private _position: Position;
+  private _width: number;
+  private _height: number;
 
   get image() {
     return this._image;
@@ -18,10 +20,20 @@ class Character {
     return this._position;
   }
 
-  constructor(image: string, frames: number[], position: Position) {
+  get width() {
+    return this._width;
+  }
+
+  get height() {
+    return this._height;
+  }
+
+  constructor(image: string, frames: number[], position: Position, width: number, height: number) {
     this._image = image;
     this._frames = frames;
     this._position = position;
+    this._width = width;
+    this._height = height;
   }
 }
 export = Character;

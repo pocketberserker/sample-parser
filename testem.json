@@ -11,7 +11,7 @@
   ],
   "launchers": {
     "Node": {
-      "command": "./node=modules/.bin/mocha powered-test/*.js -R tap",
+      "command": "./node_modules/.bin/mocha powered-test/*.js -R tap",
       "protocol": "tap"
     }
   },

@@ -38,6 +38,9 @@ module Helper {
       return parsimmon.succeed(res);
     }
   });
+  export function keyValueInt(key: string): parsimmon.Parser<number> {
+    return keyValue(key, int);
+  }
   // 本当にこの実装でいいの？
   export function opt<T>(parser: parsimmon.Parser<T>): parsimmon.Parser<T> {
     return parser.or(parsimmon.succeed(undefined));

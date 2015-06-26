@@ -10,13 +10,17 @@ describe('NovelParser', function() {
     var check = function(label, pos) {
       var input = label + '\n'
         + '  image: hoge\n'
-        + '  frames: [0]';
+        + '  frames: [0]\n'
+        + '  width: 1\n'
+        + '  height: 2';
       var parser = NovelParser.characters(IndentContext.initialize);
       var actual = parser.parse(input);
       assert(actual.status);
       assert(actual.value.value[0].image === 'hoge');
       assert(actual.value.value[0].position === pos);
       assert.deepEqual(actual.value.value[0].frames, [0]);
+      assert(actual.value.value[0].width === 1);
+      assert(actual.value.value[0].height === 2);
     };
     it('left', function() { check('left', 0); });
     it('center', function() { check('center', 1); });
@@ -25,12 +29,18 @@ describe('NovelParser', function() {
       var input = 'left\n'
         + '  image: hoge\n'
         + '  frames: [0]\n'
+        + '  width: 1\n'
+        + '  height: 2\n'
         + 'center\n'
         + '  image: duke\n'
         + '  frames: [0, 1]\n'
+        + '  width: 3\n'
+        + '  height: 4\n'
         + 'right\n'
         + '  image: scala\n'
-        + '  frames: [1,2]';
+        + '  frames: [1,2]\n'
+        + '  width: 5\n'
+        + '  height: 6';
       var parser = NovelParser.characters(IndentContext.initialize);
       var actual = parser.parse(input);
 
@@ -39,14 +49,20 @@ describe('NovelParser', function() {
       assert(actual.value.value[0].image === 'hoge');
       assert(actual.value.value[0].position === 0);
       assert.deepEqual(actual.value.value[0].frames, [0]);
+      assert(actual.value.value[0].width === 1);
+      assert(actual.value.value[0].height === 2);
 
       assert(actual.value.value[1].image === 'duke');
       assert(actual.value.value[1].position === 1);
       assert.deepEqual(actual.value.value[1].frames, [0, 1]);
+      assert(actual.value.value[1].width === 3);
+      assert(actual.value.value[1].height === 4);
 
       assert(actual.value.value[2].image === 'scala');
       assert(actual.value.value[2].position === 2);
       assert.deepEqual(actual.value.value[2].frames, [1, 2]);
+      assert(actual.value.value[2].width === 5);
+      assert(actual.value.value[2].height === 6);
     });
   });
   describe('monologue', function() {
@@ -83,6 +99,8 @@ describe('NovelParser', function() {
         + '  left\n'
         + '    image: hoge\n'
         + '    frames: [0]\n'
+        + '    width: 1\n'
+        + '    height: 2\n'
         + '  test';
       var parser = NovelParser.monologue(IndentContext.initialize);
       var actual = parser.parse(input);
@@ -93,6 +111,8 @@ describe('NovelParser', function() {
       assert(actual.value.value.characters[0].image === 'hoge');
       assert(actual.value.value.characters[0].position === 0);
       assert.deepEqual(actual.value.value.characters[0].frames, [0]);
+      assert(actual.value.value.characters[0].width === 1);
+      assert(actual.value.value.characters[0].height === 2);
     });
     it('background option', function() {
       var input = '# this is comment\n'
@@ -213,6 +233,18 @@ describe('NovelParser', function() {
       assert(actual.value.scene[0].name === 'hoge');
       assert.deepEqual(actual.value.scene[0].words, ['test']);
       assert(actual.value.nextScenarioName === 'another');
+    });
+    it('choice', function() {
+      var input = 'title: title\n'
+        + 'background: black\n'
+        + 'choices\n'
+        + '  hoge:next: fuga';
+      var actual = NovelParser.parse(input);
+      assert(actual.status);
+      assert(actual.value.title === 'title')
+      assert(actual.value.background === 'black');
+      assert(actual.value.scene[0].choices[0].choice === 'hoge');
+      assert(actual.value.scene[0].choices[0].scenario === 'fuga');
     });
   });
   it('scene', function() {

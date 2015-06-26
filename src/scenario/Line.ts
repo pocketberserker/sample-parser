@@ -16,7 +16,7 @@ class Line implements Scene {
     return this._words;
   }
 
-  get chracters() {
+  get characters() {
     return this._characters;
   }
 

@@ -18,19 +18,24 @@ import ScenarioParser = require("./ScenarioParser");
 
 module NovelParser {
 
+  function newLineWith<T>(context: IndentContext, p: parsimmon.Parser<T>) {
+    return IndentParser.newline.then(ScenarioParser.comment(context)).then(
+      IndentParser.indent.chain((i: number) => {
+        if (i === context.currentLevel) {
+          return parsimmon.succeed(undefined);
+        } else {
+          return parsimmon.fail("indent don't equal");
+        }
+      })
+      .then(p));
+  }
+
   function image(context: IndentContext, p: Position): parsimmon.Parser<Character> {
     return Helper.keyValueString("image").chain((image: string) =>
-      IndentParser.newline.then(ScenarioParser.comment(context)).then(IndentParser.indent
-        .chain((i: number) => {
-          if (i === context.currentLevel) {
-            return parsimmon.succeed(undefined);
-          } else {
-            return parsimmon.fail("indent don't equal");
-          }
-        })
-        .then(Helper.keyValueArray("frames", Helper.int))
-        .map((frames: number[]) => new Character(image, frames, p))
-      ));
+        newLineWith(context, Helper.keyValueArray("frames", Helper.int)).chain((frames: number[]) =>
+          newLineWith(context, Helper.keyValueInt("width")).chain((w: number) =>
+            newLineWith(context, Helper.keyValueInt("height")).map((h: number) =>
+              new Character(image, frames, p, w, h)))));
   }
 
   function stringToPos(p: string) {
@@ -151,9 +156,13 @@ module NovelParser {
   export function novel(context: IndentContext): parsimmon.Parser<IndentResult<Novel>> {
     return ScenarioParser.scenarioInformation(context).chain((info: [string, string]) =>
       IndentParser.endOfLine(context).chain((eolCtx: IndentContext) =>
-        scene(eolCtx).chain((result: IndentResult<Scene[]>) =>
-          nextScene(result.context).map((nf: [string, LoadScene]) =>
-            new IndentResult(new Novel(info[0], info[1], result.value, nf[0], nf[1]), result.context)))));
+        scene(eolCtx).chain((result: IndentResult<Scene[]>) => {
+          if (result.value[result.value.length - 1] instanceof Choices) {
+            return parsimmon.succeed(new IndentResult(new Novel(info[0], info[1], result.value, undefined, undefined), result.context));
+          }
+          return nextScene(result.context).map((nf: [string, LoadScene]) =>
+            new IndentResult(new Novel(info[0], info[1], result.value, nf[0], nf[1]), result.context));
+        })));
   }
 
   export function parse(input: string) {
