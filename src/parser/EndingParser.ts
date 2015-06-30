@@ -4,8 +4,6 @@ import Helper = require("./Helper");
 import IndentContext = require("./IndentContext");
 import IndentParser = require("./IndentParser");
 import IndentResult = require("./IndentResult");
-import Monologue = require("../scenario/Monologue");
-import Line = require("../scenario/Line");
 import Scene = require("../scenario/Scene");
 import Ending = require("../scenario/Ending");
 import ScenarioParser = require("./ScenarioParser");
@@ -15,7 +13,7 @@ module EndingParser {
 
   export function scene(context: IndentContext): parsimmon.Parser<IndentResult<Scene[]>> {
     let empty: IndentResult<Scene[]> = new IndentResult([], context);
-    return parsimmon.alt(monologue(context), line(context))
+    return parsimmon.alt(ScenarioParser.monologue(context), ScenarioParser.line(context))
       .chain((result: IndentResult<Scene>) =>
         parsimmon.lazy(() => scene(result.context)).map((res: IndentResult<Scene[]>) => {
           let es = res.value.slice();
@@ -23,32 +21,6 @@ module EndingParser {
           return new IndentResult(es, res.context);
         }))
       .or(parsimmon.succeed(empty));
-  }
-
-  function monologueBody(context: IndentContext): parsimmon.Parser<IndentResult<Scene>> {
-    return ScenarioParser.backgroundOption(context).chain((b: IndentResult<string>) =>
-      IndentParser.sameLevel(b.context)
-        .then(ScenarioParser.text(b.context).map((ws: string[]) =>
-          new IndentResult(new Monologue(ws, [], b.value), b.context))));
-  }
-
-  export function monologue(context: IndentContext): parsimmon.Parser<IndentResult<Scene>> {
-    return ScenarioParser.block(context, "monologue", monologueBody);
-  }
-
-  var name: parsimmon.Parser<string> = Helper.keyValueString("name");
-
-  function lineBody(context: IndentContext): parsimmon.Parser<IndentResult<Scene>> {
-    return ScenarioParser.backgroundOption(context).chain((b: IndentResult<string>) =>
-      IndentParser.sameLevel(b.context).then(name).chain((n: string) =>
-        IndentParser.endOfLine(b.context).chain((eolCtx: IndentContext) =>
-          IndentParser.sameLevel(eolCtx)
-            .then(ScenarioParser.text(eolCtx).map((ws: string[]) =>
-              new IndentResult(new Line(n, ws, [], b.value), eolCtx))))));
-  }
-
-  export function line(context: IndentContext): parsimmon.Parser<IndentResult<Scene>> {
-    return ScenarioParser.block(context, "line", lineBody);
   }
 
   function fin(context: IndentContext) {

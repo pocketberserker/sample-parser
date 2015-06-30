@@ -48,30 +48,4 @@ describe('EndingParser', function() {
     assert.deepEqual(actual.value.value[0].words, ['test']);
     assert.deepEqual(actual.value.value[1].words, ['test2']);
   });
-  describe('monologue', function() {
-    it('background option', function() {
-      var input = 'monologue\n'
-        + '  background: hoge\n'
-        + '  test';
-      var parser = EndingParser.monologue(IndentContext.initialize);
-      var actual = parser.parse(input);
-      assert(actual.status);
-      assert(actual.value.value.background('defaultValue') === 'hoge');
-      assert.deepEqual(actual.value.value.words, ['test']);
-    });
-  });
-  describe('line', function() {
-    it('background option', function() {
-      var input = 'line\n'
-        + '  background: hoge\n'
-        + '  name: fuga\n'
-        + '  test';
-      var parser = EndingParser.line(IndentContext.initialize);
-      var actual = parser.parse(input);
-      assert(actual.status);
-      assert(actual.value.value.background('defaultValue') === 'hoge');
-      assert.deepEqual(actual.value.value.name, 'fuga');
-      assert.deepEqual(actual.value.value.words, ['test']);
-    });
-  });
 });
